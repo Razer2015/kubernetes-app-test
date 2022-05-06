@@ -8,7 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          path: main
       - name: Generate build number
         id: buildnumber
         uses: einaregilsson/build-number@v3 
@@ -25,17 +27,17 @@ jobs:
       - name: Build and push test-app-backend
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./main
+          file: ./main/Dockerfile
           push: false
           tags: xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}
       -
         name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with: 
             repository: Razer2015/kubernetes-test
             token: ${{ secrets.ACTIONS_TOKEN }}
-            path: ./deploymentRepo
+            path: deploymentRepo
       - name: Update image version
         run: |
           cd ./deploymentRepo
