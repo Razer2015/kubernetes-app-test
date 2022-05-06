@@ -31,13 +31,13 @@ jobs:
           file: ./main/Dockerfile
           push: false
           tags: xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-        with: 
-            repository: Razer2015/kubernetes-test
-            token: ${{ secrets.ACTIONS_TOKEN }}
-            path: deploymentRepo
+      # -
+      #   name: Checkout
+      #   uses: actions/checkout@v3
+      #   with: 
+      #       repository: Razer2015/kubernetes-test
+      #       token: ${{ secrets.ACTIONS_TOKEN }}
+      #       path: deploymentRepo
       # - name: Update image version
       #   run: |
       #     cd ./deploymentRepo
