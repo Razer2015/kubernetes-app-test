@@ -1,6 +1,9 @@
 name: Test build and deploy
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build_and_push:
@@ -31,20 +34,20 @@ jobs:
           file: ./main/Dockerfile
           push: false
           tags: xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}
-      # -
-      #   name: Checkout
-      #   uses: actions/checkout@v3
-      #   with: 
-      #       repository: Razer2015/kubernetes-test
-      #       token: ${{ secrets.ACTIONS_TOKEN }}
-      #       path: deploymentRepo
-      # - name: Update image version
-      #   run: |
-      #     cd ./deploymentRepo
-      #     image=$(cat ./applications/kubernetes-app-test/test-app-deployment.yaml | grep image: | awk '{print $2}')
-      #     sed -i "s@$image@xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}@" ./applications/kubernetes-app-test/test-app-deployment.yaml
-      #     git add .
-      #     git config user.name github-actions
-      #     git config user.email github-actions@github.com
-      #     git commit -am "Version updated to ${{ steps.buildnumber.outputs.build_number }}"
-      #     git push
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+        with: 
+            repository: Razer2015/kubernetes-test
+            token: ${{ secrets.ACTIONS_TOKEN }}
+            path: deploymentRepo
+      - name: Update image version
+        run: |
+          cd ./deploymentRepo
+          image=$(cat ./applications/kubernetes-app-test/test-app-deployment.yaml | grep image: | awk '{print $2}')
+          sed -i "s@$image@xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}@" ./applications/kubernetes-app-test/test-app-deployment.yaml
+          git add .
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -am "Version updated to ${{ steps.buildnumber.outputs.build_number }}"
+          git push
