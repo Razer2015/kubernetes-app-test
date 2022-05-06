@@ -1,0 +1,46 @@
+name: Test build and deploy
+
+on: push
+
+jobs:
+  build_and_push:
+    name: Build and push docker images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Generate build number
+        id: buildnumber
+        uses: einaregilsson/build-number@v3 
+        with:
+          token: ${{secrets.github_token}}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # Should uncommenct and add secrets if actually pushing
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1 
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push test-app-backend
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with: 
+            repository: Razer2015/kubernetes-test
+            token: ${{ secrets.ACTIONS_TOKEN }}
+      - name: Update image version
+        run: |
+          image=$(cat ./applications/kubernetes-app-test/test-app-deployment.yaml | grep image: | awk '{print $2}')
+          sed -i "s@$image@xfilefin/test-app-backend:test-${{ steps.buildnumber.outputs.build_number }}@" ./applications/kubernetes-app-test/test-app-deployment.yaml
+      - name: Commit and push changes
+        uses: devops-infra/action-commit-push@v0.3
+        with:
+          github_token: ${{ secrets.ACTIONS_TOKEN }}
+          commit_message: Version updated to ${{ steps.buildnumber.outputs.build_number }}
